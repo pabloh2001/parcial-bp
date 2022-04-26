@@ -11,9 +11,35 @@ const Animal = () => {
     const [category, setCategory] = React.useState('')
     const [race, setRace] = React.useState('')
     const [weight, setWeight] = React.useState('')
+    const [color, setColor] = React.useState('')
+    const [type, setType] = React.useState('')
     const [list, setList] = React.useState([])
     const [editMode, setEditMode] = React.useState(false)
-    const image = 'https://picsum.photos/50/50'
+    
+    let image = 'https://picsum.photos/100/100?image='
+    const valor = () =>{
+        return Math.floor(Math.random()*(599-100+1)+100)
+    }
+
+    React.useEffect(()=>{
+        const getData = async () =>{
+            try{
+                const db = firebase.firestore()
+                const data = await db.collection('animales').get()
+                const array = data.docs.map(item =>(
+                    {
+                        id:item.id, ...item.data()
+                    }
+                ))
+                setList(array)
+
+            }catch(error){
+                console.error(error)
+            }
+        }
+        getData()
+
+    })
 
     const saveAnimal = async (e) => {
         e.preventDefault()
@@ -54,29 +80,41 @@ const Animal = () => {
             return 
         }
 
-        if (!image.trim()) {
+        if (!color.trim()) {
             mySwal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'El campo image está vacio!'
+                text: 'El campo color está vacio!'
+            })
+            return 
+        }
+
+        if (!type.trim()) {
+            mySwal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'El campo tipo está vacio!'
             })
             return 
         }
 
         try {
             const db = firebase.firestore()
+            
             const animal = {
                 animal: nameAnimal,
                 category: category,
                 race: race,
                 weight: weight,
-                image: image
+                color: color,
+                type: type,
+                image: image+valor()
             }
-            await db.collection('doctores').add(animal)
+            await db.collection('animales').add(animal)
             mySwal.fire({
                 position: 'top-end',
                 icon: 'success',
-                title: 'Cita registrada exitosamente',
+                title: 'Animal registrado exitosamente',
                 showConfirmButton: false,
                 timer: 1500
             })
@@ -88,6 +126,8 @@ const Animal = () => {
                     category: category,
                     race: race,
                     weight: weight,
+                    color: color,
+                    type: type,
                     image: image
                 }
             ])
@@ -98,6 +138,8 @@ const Animal = () => {
         setCategory('')
         setRace('')
         setWeight('')
+        setColor('')
+        setType('')
         setEditMode(false)
     }
 
@@ -106,6 +148,8 @@ const Animal = () => {
         setCategory(item.category)
         setRace(item.race)
         setWeight(item.weight)
+        setColor(item.color)
+        setType(item.type)
         setEditMode(true)
         setId(item.id)
     }
@@ -117,7 +161,7 @@ const Animal = () => {
             mySwal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'El campo nombre paciente está vacio!'
+                text: 'El campo nombre está vacio!'
             })
             return
         }
@@ -126,7 +170,7 @@ const Animal = () => {
             mySwal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'El campo nombre doctor está vacio!'
+                text: 'El campo categoria está vacio!'
             })
             return 
         }
@@ -135,7 +179,7 @@ const Animal = () => {
             mySwal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'El campo fecha está vacio!'
+                text: 'El campo raza está vacio!'
             })
             return 
         }
@@ -144,24 +188,44 @@ const Animal = () => {
             mySwal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'El campo hora está vacio!'
+                text: 'El campo peso está vacio!'
+            })
+            return 
+        }
+
+        if (!color.trim()) {
+            mySwal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'El campo color está vacio!'
+            })
+            return 
+        }
+
+        if (!type.trim()) {
+            mySwal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'El campo tipo está vacio!'
             })
             return 
         }
 
         try {
             const db = firebase.firestore()
-            await db.collection('doctores').doc(id).update({
+            await db.collection('animales').doc(id).update({
                 animal: nameAnimal,
                 category: category,
                 race: race,
                 weight: weight,
+                color: color,
+                type: type,
                 image: image
             })
             mySwal.fire({
                 position: 'top-end',
                 icon: 'success',
-                title: 'Cita actualizada',
+                title: 'Animal actualizado',
                 showConfirmButton: false,
                 timer: 1500
             })
@@ -173,6 +237,8 @@ const Animal = () => {
         setCategory('')
         setRace('')
         setWeight('')
+        setColor('')
+        setType('')
         setEditMode(false)
     }
 
@@ -181,9 +247,43 @@ const Animal = () => {
         setCategory('')
         setRace('')
         setWeight('')
+        setColor('')
+        setType('')
         setEditMode(false)
     }
 
+    const deleteAnimal = async (id) =>{
+        try{
+            const db = firebase.firestore()
+            await db.collection('animales').doc(id).delete()
+            const aux = list.filter(item => item.id !== id)
+            setList(aux)
+        }catch(error){
+            console.error(error)
+        }
+    }
+
+    const confirmDelete = (id) => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si, Eliminar!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+                deleteAnimal(id)
+                Swal.fire(
+                    'Eliminado!',
+                    'El animal ha sido eliminado.',
+                    'success'
+                )
+            }
+        })
+    }
 
     return (
         <div className='container mt-3'>
@@ -211,8 +311,11 @@ const Animal = () => {
                                 <td>{item.category}</td>
                                 <td>{item.race}</td>
                                 <td>{item.weight}</td>
+                                <td>{item.color}</td>
+                                <td>{item.type}</td>
                                 <td><img src={item.image} alt="" /></td>
                                 <td>
+                                <button className='btn btn-danger btn-sm float-end mx-2' onClick={()=> confirmDelete(item.id)}><i className="fa-solid fa-trash-can"></i></button>
                                     <button className='btn btn-warning btn-sm float-end' onClick={()=> auxUpdate(item)}><i className="fa-solid fa-file-pen"></i></button>
                                 </td>
                             </tr>
@@ -264,6 +367,25 @@ const Animal = () => {
                             value = {weight}
                         />
                     </div>
+                    <div className="col-md-5">
+                        <input
+                            className='form-control mb-2'
+                            type="text"
+                            placeholder='color'
+                            onChange={(e)=>setColor(e.target.value)}
+                            value = {color}
+                        />
+                    </div>
+                    <div className="col-md-5">
+                        <input
+                            className='form-control mb-2'
+                            type="text"
+                            placeholder='tipo'
+                            onChange={(e)=>setType(e.target.value)}
+                            value = {type}
+                        />
+                    </div>
+
                     <div className="col-md-10">
                         {
                             !editMode? (
