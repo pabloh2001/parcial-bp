@@ -11,11 +11,11 @@ const Animal = () => {
     const [category, setCategory] = React.useState('')
     const [race, setRace] = React.useState('')
     const [weight, setWeight] = React.useState('')
-    const [image, setImage] = React.useState('')
     const [list, setList] = React.useState([])
     const [editMode, setEditMode] = React.useState(false)
+    const image = 'https://picsum.photos/50/50'
 
-    const saveDoctor = async (e) => {
+    const saveAnimal = async (e) => {
         e.preventDefault()
 
         if (!nameAnimal.trim()) {
@@ -98,7 +98,6 @@ const Animal = () => {
         setCategory('')
         setRace('')
         setWeight('')
-        setImage('')
         setEditMode(false)
     }
 
@@ -107,12 +106,11 @@ const Animal = () => {
         setCategory(item.category)
         setRace(item.race)
         setWeight(item.weight)
-        setImage(item.image)
         setEditMode(true)
         setId(item.id)
     }
 
-    const updateDoctor = async e => {
+    const updateAnimal = async e => {
         e.preventDefault()
 
         if (!nameAnimal.trim()) {
@@ -150,15 +148,6 @@ const Animal = () => {
             })
             return 
         }
-    
-        if (!image.trim()) {
-            mySwal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'El campo razón de la cita está vacio!'
-            })
-            return 
-        }
 
         try {
             const db = firebase.firestore()
@@ -184,7 +173,6 @@ const Animal = () => {
         setCategory('')
         setRace('')
         setWeight('')
-        setImage('')
         setEditMode(false)
     }
 
@@ -193,18 +181,17 @@ const Animal = () => {
         setCategory('')
         setRace('')
         setWeight('')
-        setImage('')
         setEditMode(false)
     }
 
 
     return (
         <div className='container mt-3'>
-        <h1 className='text-center'>TALLER REACT</h1>
+        <h1 className='text-center'>PARCIAL REACT-BP</h1>
         <hr/>
         <div className='row'>
             <div className="table-responsive">
-                <h4 className="text-center">Listado de Citas</h4>
+                <h4 className="text-center">Listado de Animales</h4>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -224,9 +211,8 @@ const Animal = () => {
                                 <td>{item.category}</td>
                                 <td>{item.race}</td>
                                 <td>{item.weight}</td>
-                                <td>{item.image}</td>
+                                <td><img src={item.image} alt="" /></td>
                                 <td>
-                                    <button className='btn btn-danger btn-sm float-end mx-2' onClick={()=> confirmDelete(item.id)}><i className="fa-solid fa-trash-can"></i></button>
                                     <button className='btn btn-warning btn-sm float-end' onClick={()=> auxUpdate(item)}><i className="fa-solid fa-file-pen"></i></button>
                                 </td>
                             </tr>
@@ -238,15 +224,15 @@ const Animal = () => {
             <div className="container">
                 <h4 className="text-center">
                     {
-                        editMode ? 'Editar Doctor': 'Agregar Doctor'
+                        editMode ? 'Editar Animal': 'Agregar Animal'
                     }
                 </h4>
-                <form className="row g-3 justify-content-center" onSubmit={editMode ? updateDoctor: saveDoctor}>
+                <form className="row g-3 justify-content-center" onSubmit={editMode ? updateAnimal: saveAnimal}>
                     <div className="col-md-5">
                         <input
                             className='form-control mb-2'
                             type="text"
-                            placeholder='nombre del paciente'
+                            placeholder='nombre del animal'
                             onChange={(e)=>setNameAnimal(e.target.value)}
                             value = {nameAnimal}
                         />
@@ -255,7 +241,7 @@ const Animal = () => {
                         <input
                             className='form-control mb-2'
                             type="text"
-                            placeholder='fecha de la cita'
+                            placeholder='categoria'
                             onChange={(e)=>setCategory(e.target.value)}
                             value = {category}
                         />
@@ -264,7 +250,7 @@ const Animal = () => {
                         <input
                             className='form-control mb-2'
                             type="text"
-                            placeholder='hora de la cita'
+                            placeholder='raza'
                             onChange={(e)=>setRace(e.target.value)}
                             value = {race}
                         />
@@ -273,18 +259,9 @@ const Animal = () => {
                         <input
                             className='form-control mb-2'
                             type="text"
-                            placeholder='motivo de la cita'
+                            placeholder='peso'
                             onChange={(e)=>setWeight(e.target.value)}
                             value = {weight}
-                        />
-                    </div>
-                    <div className="col-md-5">
-                        <input
-                            className='form-control mb-2'
-                            type="text"
-                            placeholder='eps afiliado'
-                            onChange={(e)=>setImage(e.target.value)}
-                            value = {image}
                         />
                     </div>
                     <div className="col-md-10">
