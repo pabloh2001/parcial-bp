@@ -1,6 +1,7 @@
+import React from 'react';
 import './App.css';
 import Animal from './components/Animal';
-function App() {
+const App = () => {
   return (
     <>
     <Animal/>
